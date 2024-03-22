@@ -1,0 +1,78 @@
+version: "3.6"
+
+services:
+  MysqlData:
+    image: busybox
+    volumes:
+      - ./database/mysql-data:/var/lib/mysql
+  db3:
+    build: ./database
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    restart: unless-stopped
+    expose:
+        - 3306
+    volumes_from:
+      - "MysqlData"
+    environment:
+      # These password and stuff is not neccesarry too secret
+      - MYSQL_ROOT_PASSWORD=45299417d86f231f6a58434488edb763
+      - MYSQL_DATABASE=ptit_shop
+      - MYSQL_USER=db_user
+      - MYSQL_PASSWORD=db_password
+      - MYSQL_STAFF=staff
+      - MYSQL_STAFF_PASSWORD=day_la_staff_ptithcm
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - TZ=Asia/Ho_Chi_Minh
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma3
+    links:
+      - db3
+    environment:
+      PMA_HOST: db3
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8098:80
+
+  webadmin:
+    build: ./src/admin
+    restart: 'always'
+    ports:
+      - "8097:80"
+    environment:
+      # These password and stuff is not neccesarry too secret
+      - MYSQL_HOSTNAME=db3
+      - MYSQL_ROOT_PASSWORD=45299417d86f231f6a584d1488edb763
+      - MYSQL_DATABASE=ptit_shop
+      - MYSQL_USER=db_user
+      - MYSQL_PASSWORD=db_password
+      - MYSQL_STAFF=staff
+      - MYSQL_STAFF_PASSWORD=day_la_staff_ptithcm
+      - MYSQL_MANAGER=manager
+      - MYSQL_MANAGER_PASSWORD=day_la_manager_ptithcm
+      - MYSQL_ADMIN=admin
+      - MYSQL_ADMIN_PASSWORD=day_la_admin_ptithcm
+      - TZ=Asia/Ho_Chi_Minh
+      - key_api=0f184721df9c1e1e8b20ec67619460391b6b8c5ed15775c2864ab9f9e7c51409
+    volumes:
+      - "./src/admin:/var/www/html/"
+  webshopping:
+    build: ./src/shopping
+    restart: 'always'
+    ports:
+      - "8096:80"
+    environment:
+      # These password and stuff is not neccesarry too secret
+      - MYSQL_HOSTNAME=db3
+      - MYSQL_ROOT_PASSWORD=45299417d86f231f6a584d1488edb763
+      - MYSQL_DATABASE=ptit_shop
+      - MYSQL_USER=db_user
+      - MYSQL_PASSWORD=db_password
+      - TZ=Asia/Ho_Chi_Minh
+      - key_api=0f184721df9c1e1e8b20ec67619460391b6b8c5ed15775c2864ab9f9e7c51409
+    volumes:
+      - "./src/shopping:/var/www/html/"
+      - "./src/admin/public/products:/var/www/html/public/products"

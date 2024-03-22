@@ -1,0 +1,23 @@
+RewriteEngine on
+
+# Redirect all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule ^(.+)$ index.php?url=$1
+
+# Disable Directory Indexing
+Options -Indexes
+
+# filter .php
+
+RewriteCond %{REQUEST_URI} ^/mvc/controllers/ [NC,OR]
+RewriteCond %{REQUEST_URI} ^/mvc/core/ [NC,OR]
+RewriteCond %{REQUEST_URI} ^/mvc/models/ [NC,OR]
+RewriteCond %{REQUEST_URI} \.php$ [NC]
+RewriteCond %{REQUEST_URI} !^/index\.php$ [NC]
+RewriteRule ^ - [F]
+
+# điều hướng file mọi request not found về 404.html
+ErrorDocument 404 /mvc/403.php
+ErrorDocument 403 /mvc/403.php
