@@ -488,7 +488,7 @@ INSERT INTO `OrderItems`(`order_code`, `product_code`, `quantity`, `size`, `tota
 INSERT INTO `OrderItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_2','SP1701935173',3,'M',600);
 INSERT INTO `OrderItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_4','SP1701935684',5,'L',1000);
 
-INSERT INTO `OrdersHistory`(`order_code`, `order_date` ,`payment_code`, `payment_date`, `payment_type`, `state`, `email`, `address`, `phone`, `total_price`) VALUES ('order_1', CURRENT_TIMESTAMP,'payment_1',CURRENT_TIMESTAMP,'bank_transfer','delivered','n20dcat004@student.ptithcm.edu.vn','Phường Phú Thạnh, Quận Gò Vấp, Thành phố Hồ Chí Minh','0707888555',400);
+INSERT INTO `OrdersHistory`(`order_code`, `order_date` ,`payment_code`, `payment_date`, `payment_type`, `state`, `email`, `address`, `phone`, `total_price`) VALUES ('order_1', CURRENT_TIMESTAMP,'payment_1',CURRENT_TIMESTAMP,'cash','delivered','n20dcat004@student.ptithcm.edu.vn','Phường Phú Thạnh, Quận Gò Vấp, Thành phố Hồ Chí Minh','0707888555',400);
 INSERT INTO `OrdersHistory`(`order_code`, `order_date` , `state`, `email`, `address`, `phone`, `total_price`) VALUES ('order_3', CURRENT_TIMESTAMP,'cancelled','n20dcat017@student.ptithcm.edu.vn','Phường Phú Thạnh, Quận Gò Vấp, Thành phố Hồ Chí Minh','0707888555',800);
 
 INSERT INTO `OrdersHistoryItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_1','SP1701933882',2,'S', 200);
