@@ -3,7 +3,6 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
     class AuthController extends Controller{
-        
         function Login(){
 
             // lấy và validate data
