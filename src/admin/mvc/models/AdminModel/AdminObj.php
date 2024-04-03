@@ -1,7 +1,7 @@
 <?php 
     class AdminObj{
-        private $username;
-        private $role;
+        public $username;
+        public $role;
 
         public function __construct($row)
         {
