@@ -14,11 +14,11 @@ use Firebase\JWT\Key;
             }
 
             $model = $this->model("Admin");
-            $result = $model->checkAccount($data);
+            $resultAccount = $model->checkAccount($data);
             
-            if($result != null){
+            if($resultAccount != null){
 
-                if($result['err'] == null){
+                if($resultAccount['err'] == null){
 
                     $key = getenv('key_api');
             
@@ -29,7 +29,7 @@ use Firebase\JWT\Key;
                         'nbf' => time(),
                         'exp' => time() + (60 * 60 * 24 * 7),
                         'username' => $data['username'],
-                        'role' => $result['role']
+                        'role' => $resultAccount['role']
                     ];
     
                     $jwt = JWT::encode($payload, $key, 'HS256');
@@ -55,6 +55,7 @@ use Firebase\JWT\Key;
 
                         if($result == "done"){
                             $response["token"] = $jwt;
+                            $response["role"] = $resultAccount["role"];
                         }
                         else{
                             http_response_code(401);
@@ -63,7 +64,7 @@ use Firebase\JWT\Key;
                     }
                 }
                 else{
-                    $response['err'] = $result['err'];
+                    $response['err'] = $resultAccount['err'];
                     http_response_code(401);
                 }
         
