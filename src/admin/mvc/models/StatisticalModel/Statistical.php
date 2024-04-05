@@ -7,7 +7,7 @@ class Statistical extends MiddleWare {
                     FROM OrdersHistory 
                     WHERE state = 'delivered' AND order_date >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH) -- Lấy từ 5 tháng gần nhất
                     GROUP BY YEAR(order_date), MONTH(order_date)
-                    ORDER BY year DESC, month DESC"; 
+                    ORDER BY year ASC, month ASC"; 
             $sth = $db->select($sql);
             $data = $sth->fetchAll();
             return $data;
@@ -21,9 +21,9 @@ class Statistical extends MiddleWare {
             $db = new DB();
             $sql = "SELECT YEAR(order_date) AS year, SUM(total_price) AS revenue 
                     FROM OrdersHistory 
-                    WHERE state = 'delivered' -- Chỉ tính những đơn hàng có trạng thái là 'delivered'
+                    WHERE state = 'delivered' 
                     GROUP BY YEAR(order_date)
-                    ORDER BY YEAR(order_date) DESC -- Sắp xếp theo năm giảm dần
+                    ORDER BY YEAR(order_date) ASC 
                     LIMIT 5"; // Lấy 5 năm gần nhất
             $sth = $db->select($sql);
             $data = $sth->fetchAll();
