@@ -47,7 +47,7 @@ class CartItem extends DB
                 $row_product['name'] = $row['name'];
                 $row_product['price'] = $row['price'];
                 $row_product['color'] = $row['color'];
-                $quantityData = [                    
+                $quantityData = [
                     'product_code' => $row['product_code'],
                     'size' => $row['size']
                 ];
@@ -95,8 +95,8 @@ class CartItem extends DB
         try {
             $db = new DB();
             $sql = "SELECT quantity FROM ProductSizes WHERE product_code = ? AND size = ?";
-            $params = array($data['product_code'],$data['size']);
-            $sth = $db->select($sql, $params);            
+            $params = array($data['product_code'], $data['size']);
+            $sth = $db->select($sql, $params);
             $quantity = $sth->fetchAll();
             return $quantity[0]['quantity'];
         } catch (PDOException $e) {
@@ -110,15 +110,51 @@ class CartItem extends DB
     {
         try {
             $db = new DB();
-            $sql = "INSERT INTO `CartItems`(`cart_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES (?,?,?,?,?)";
-            $params = array($data['cart_code'], $data['product_code'], $data['quantity'], $data['size'], $data['total_price']);
-            $db->execute($sql, $params);
+            $check_sql = "SELECT COUNT(quantity) AS num, SUM(quantity) AS quantity, SUM(total_price) AS total_price FROM CartItems WHERE product_code = ? AND size = ? AND cart_code =?";
+            $check_params = array($data['product_code'], $data['size'], $data['cart_code']);
+            $sth = $db->select($check_sql, $check_params);
+            $result = $sth->fetchAll();
+            $num = $result[0]['num'];
+            $quantity = $result[0]['quantity'];
+            $total_price = $result[0]['total_price'];
+
+            if ($num > 0) {
+                $data['quantity'] += $quantity; // Cộng thêm số lượng mới vào số lượng hiện có
+                $data['total_price'] += $total_price;
+                $this->ChangeQuantityAndPrice($data);
+                return "done";
+            } else {
+                $sql = "INSERT INTO `CartItems`(`cart_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES (?,?,?,?,?)";
+                $params = array($data['cart_code'], $data['product_code'], $data['quantity'], $data['size'], $data['total_price']);
+                $db->execute($sql, $params);
+                return "done";
+            }
+        } catch (PDOException $e) {
+            return "lỗi";
+        }
+    }
+    function RemoveProduct($data)
+    {
+        try {
+            $db = new DB();
+            $check_sql = "SELECT COUNT(quantity) AS num, SUM(quantity) AS quantity, SUM(total_price) AS total_price FROM CartItems WHERE product_code = ? AND size = ? AND cart_code =?";
+            $check_params = array($data['product_code'], $data['size'], $data['cart_code']);
+            $sth = $db->select($check_sql, $check_params);
+            $result = $sth->fetchAll();
+            $num = $result[0]['num'];
+            $quantity = $result[0]['quantity'];
+            $total_price = $result[0]['total_price'];
+
+            //Giảm số lượng            
+            $data['quantity'] = $quantity - $data['quantity'];
+            $data['total_price'] = $total_price - $data['total_price'];
+            $this->ChangeQuantityAndPrice($data);
             return "done";
         } catch (PDOException $e) {
             return "lỗi";
-            //return  $sql . "<br>" . $e->getMessage() . "<br>" . $data['cart_code'];
         }
     }
+
 
     function ChangeQuantityAndPrice($data)
     {
@@ -146,5 +182,22 @@ class CartItem extends DB
             return "Lỗi khi xóa sản phẩm";
             //return  $sql . "<br>" . $e->getMessage();
         }
+    }
+    function CheckTotalProduct($cart_code){
+        try{
+            $db = new DB();
+            $sql = "SELECT SUM(quantity) AS total_quantity FROM CartItems WHERE cart_code =?";     
+            $params = array($cart_code);
+            $sth = $db->select($sql, $params);
+            $result = $sth->fetchAll();
+            $total_product = $result[0]['total_quantity'];
+            
+            return $total_product;
+           
+        }
+        catch(PDOException $e){
+            return null;
+        }
+
     }
 }
