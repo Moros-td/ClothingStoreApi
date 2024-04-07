@@ -140,6 +140,72 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
             } catch (PDOException $e) {
                 return  $sql . "<br>" . $e->getMessage();
             }
-    }
+        }
+        
+
+        function InsertProduct($data){
+            try {
+                $db = new DB();
+                $db->conn->beginTransaction();
+                $sql = "INSERT INTO `Products`(`product_code`, `name`, `description`, `price`, `category_id`, `color`) 
+                VALUES (?,?,?,?,?,?);";
+                $params = array($data['product_code'], $data['product_name'], $data['product_description'], $data['product_price'], $data['category_id'], $data['product_color']);
+                $res = $db->execute($sql, $params);
+                
+                foreach ($data['size_quantities'] as $size => $quantity) {
+                        // Thực hiện INSERT vào ProductSizes
+                    $res = $this->InsertProductSizes($db, $data['product_code'], $size, $quantity);
+                }
+
+                $ordinal_numbers = ['first', 'second', 'third', 'fourth'];
+                $index = 0;
+                foreach ($data['product_images'] as $image) {
+                        // Thực hiện INSERT vào ProductSizes
+
+                    $ordinal_number = $ordinal_numbers[$index];
+                    $res = $this->InsertProductImages($db, $data['product_code'], $ordinal_number, $image);
+                    $index += 1;
+                }
+
+                $db->conn->commit();
+                return "done";
+            } catch (PDOException $e) {
+                $db->conn->rollBack();
+                if ($e->getCode() == '42000') {
+                    // Xử lý khi có lỗi SQLSTATE 42000
+                    return "Bạn không có quyền làm thao tác này";
+                } else {
+                    if($e->getCode() == '22001'){
+                        return "Dữ liệu quá dài";
+                    }
+                    // Xử lý cho các lỗi khác
+                    return "Lỗi: " . $e->getMessage();
+                    //return "Lỗi khi thêm sản phẩm";
+                }
+            }
+        }
+        function InsertProductSizes($db, $product_code, $size, $quantity){
+            try{
+                $sql = "INSERT INTO `ProductSizes`(`product_code`, `size`, `quantity`) VALUES (?,?,?);";
+                $params = array($product_code, $size, $quantity);
+                $db->execute($sql, $params);
+            }
+            catch (PDOException $e) {
+                throw $e; // Ném ngoại lệ để bắt ở nơi gọi hàm
+                //throw "Lỗi khi thêm size"; // Ném ngoại lệ để bắt ở nơi gọi hàm
+            }
+        }
+
+        function InsertProductImages($db, $product_code, $ordinal_number, $image){
+            try{
+                $sql = "INSERT INTO `ProductImages`(`product_code`, `ordinal_number`, `image`) VALUES (?,?,?);";
+                $params = array($product_code, $ordinal_number, $image);
+                $db->execute($sql, $params);
+            }
+            catch (PDOException $e) {
+                throw $e; // Ném ngoại lệ để bắt ở nơi gọi hàm
+                //throw "Lỗi khi thêm ảnh"; // Ném ngoại lệ để bắt ở nơi gọi hàm
+            }
+        }
     }
 ?>

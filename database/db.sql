@@ -275,6 +275,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON ptit_shop.* TO 'admin'@'%';
 -- FLUSH PRIVILEGES;
 
 INSERT INTO AdminAccounts (username, password, role) VALUES('moros', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'admin');
+INSERT INTO AdminAccounts (username, password, role) VALUES('max', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'admin');
 INSERT INTO AdminAccounts (username, password, role) VALUES('teo', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'staff');
 INSERT INTO AdminAccounts (username, password, role) VALUES('dat', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'manager');
 
