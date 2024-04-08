@@ -19,9 +19,9 @@ class CartController extends Controller
             $product_data = array_map('trim', $product_data);
 
             $model = $this->model("CartItem");
-            $err = $model->AddProduct($product_data);
-            if ($err != "done") {
-                echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $arr = $model->AddProduct($product_data);
+            if ($arr != "done") {
+                echo json_encode(['error' => $arr], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             } else {
                 echo json_encode(['success' => 'done'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             }
@@ -116,6 +116,38 @@ class CartController extends Controller
             $arr = $model->FindCartCode($data);
             $json_response = json_encode($arr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             echo $json_response;
+        }
+    }
+    function DeleteItem(){
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $product_data = [
+                'cart_code' => $_POST['cart_code'],
+                'product_code' => $_POST['product_code'],
+                'size' => $_POST['size'],
+            ];
+            $product_data = array_map('trim', $product_data);
+
+            $model = $this->model("CartItem");
+            $arr = $model->DeleteProductInCart($product_data);
+            if ($arr != "done") {
+                echo json_encode(['error' => $arr], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } else {
+                echo json_encode(['success' => 'done'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+        }
+    }
+    function DeleteAllItem(){
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $cart_code = [
+                'cart_code' => $_POST['cart_code']
+            ];
+            $model = $this->model("CartItem");
+            $arr = $model->DeleteAll($cart_code);
+            if ($arr != "done") {
+                echo json_encode(['error' => $arr], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } else {
+                echo json_encode(['success' => 'done'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
         }
     }
 }
