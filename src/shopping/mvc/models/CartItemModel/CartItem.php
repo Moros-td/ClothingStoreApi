@@ -200,4 +200,17 @@ class CartItem extends DB
         }
 
     }
+    function DeleteAll($data)
+    {
+        try {
+            $db = new DB();
+            $sql = "DELETE FROM CartItems AS CI WHERE CI.cart_code = ?";
+            $params = array($data['cart_code']);
+            $db->execute($sql, $params);
+            return "done";
+        } catch (PDOException $e) {
+            return "Lỗi khi xóa sản phẩm";
+            //return  $sql . "<br>" . $e->getMessage();
+        }
+    }
 }

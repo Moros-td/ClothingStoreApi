@@ -264,6 +264,7 @@ GRANT SELECT ON ptit_shop.Products TO 'customer'@'%';
 GRANT SELECT ON ptit_shop.ProductImages TO 'customer'@'%';
 GRANT SELECT, UPDATE ON ptit_shop.ProductSizes TO 'customer'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Tokens TO 'customer'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Addresses TO 'customer'@'%';
 
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetProducts TO 'customer'@'%';
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetSizesProduct TO 'customer'@'%';
