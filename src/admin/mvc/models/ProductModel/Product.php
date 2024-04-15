@@ -159,6 +159,7 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
 
                 $ordinal_numbers = ['first', 'second', 'third', 'fourth'];
                 $index = 0;
+               
                 foreach ($data['product_images'] as $image) {
                         // Thực hiện INSERT vào ProductSizes
 
@@ -207,5 +208,76 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
                 //throw "Lỗi khi thêm ảnh"; // Ném ngoại lệ để bắt ở nơi gọi hàm
             }
         }
+        function EditProductSizes($db, $product_code, $size, $quantity){
+            try{
+                $sql = "UPDATE `ProductSizes` SET `quantity` = ? WHERE `product_code` = ? AND `size` = ? ;";
+                $params = array($quantity, $product_code, $size);
+                $db->execute($sql, $params);
+            }
+            catch (PDOException $e) {
+                throw $e; // Ném ngoại lệ để bắt ở nơi gọi hàm
+                //throw "Lỗi khi sửa size"; // Ném ngoại lệ để bắt ở nơi gọi hàm
+            }
+        }
+    
+        function EditProductImages($db, $product_code, $ordinal_number, $image){
+            try{
+                $sql = "UPDATE `ProductImages` SET `image` = ? WHERE `product_code` = ? AND `ordinal_number` = ?;";
+                $params = array($image, $product_code, $ordinal_number);
+                $db->execute($sql, $params);
+            }
+            catch (PDOException $e) {
+                throw $e; // Ném ngoại lệ để bắt ở nơi gọi hàm
+                //echo  $sql . "<br>" . $e->getMessage();
+                //throw "Lỗi khi sửa ảnh";
+            }
+        }
+    
+        function EditProduct($data,$editImages){
+            try {
+                $db = new DB();
+                $db->conn->beginTransaction();
+    
+                $sql = "UPDATE `Products` SET `name` = ?, `description` = ?, `price` = ?, `category_id` = ?, `color` = ? WHERE `product_code` = ?;";
+                $params = array($data['product_name'], $data['product_description'], $data['product_price'], $data['category_id'], $data['product_color'], $data['product_code']);
+                $db->execute($sql, $params);
+    
+                foreach ($data['size_quantities'] as $size => $quantity) {
+                    // Thực hiện INSERT vào ProductSizes
+                    $res = $this->EditProductSizes($db, $data['product_code'], $size, $quantity);
+                }
+    
+                $ordinal_numbers = ['first', 'second', 'third', 'fourth'];
+                $index = 0;
+                if($editImages == "true"){
+                    foreach ($data['product_images'] as $image) {
+                        // Thực hiện INSERT vào ProductSizes
+                        
+                        $ordinal_number = $ordinal_numbers[$index];
+                        $res = $this->EditProductImages($db, $data['product_code'], $ordinal_number, $image);
+                        $index += 1;
+                    }   
+        
+                }
+               
+                $db->conn->commit();
+    
+                return "done";
+            } catch (PDOException $e) {
+                $db->conn->rollBack();
+                if ($e->getCode() == '42000') {
+                    // Xử lý khi có lỗi SQLSTATE 42000
+                    return "Bạn không có quyền làm thao tác này";
+                } else {
+                    if($e->getCode() == '22001'){
+                        return "Dữ liệu quá dài";
+                    }
+                    //echo "Lỗi: " . $e->getMessage();
+                    return "Lỗi khi sửa sản phẩm";
+                }
+            }
+        }
     }
+    
+    
 ?>
