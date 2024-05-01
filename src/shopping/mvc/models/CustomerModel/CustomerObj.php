@@ -1,8 +1,8 @@
 <?php
     class CustomerObj{
-        private $email;
-        private $full_name;
-        private $phone;
+        public $email;
+        public $full_name;
+        public $phone;
 
         public function __construct($row)
         {

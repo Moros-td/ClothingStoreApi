@@ -22,6 +22,23 @@ include_once "./mvc/models/CustomerModel/CustomerObj.php";
             }
         }
 
+        function checkPassword($data){
+            try {
+                $arr = [];
+                $db = new DB();
+                $sql = "SELECT C.* FROM Customers AS C
+                 WHERE C.email = ? AND C.password = ?";
+                $params = array($data['email'],$data['password']);
+                $sth = $db->select($sql, $params);
+                if ($sth->rowCount() > 0) {
+                    return true;
+                }
+                return false;
+            } catch (PDOException $e) {
+                return  $e;
+            }
+        }
+
         function LoadCustomers(){
                 try {
                     $db = new DB();
@@ -83,16 +100,17 @@ include_once "./mvc/models/CustomerModel/CustomerObj.php";
             try {
                 $db = new DB();
                 $sql = "UPDATE `Customers` SET `full_name` = ?, `phone` = ? WHERE `email` = ?;";
-                $params = array($data['full_name'], $data['phone'], $data['email']);
+                $params = array($data['fullName'], $data['phone'], $data['email']);
                 $db->execute($sql, $params);
 
-                echo "done";
+                return "done";
             } catch (PDOException $e) {
                 if($e->getCode() == '22001'){
-                    echo "Dữ liệu quá dài";
+                    return "Dữ liệu quá dài";
                 }
                 else{
-                    echo "Lỗi khi sửa thông tin khách hàng";
+                    return "Lỗi khi sửa thông tin khách hàng";
+                    //return $e;
                 }
                 //echo  $sql . "<br>" . $e->getMessage();
             }
@@ -114,6 +132,19 @@ include_once "./mvc/models/CustomerModel/CustomerObj.php";
             }
         }
 
+        function InsertAddress($db, $data){
+            try {
+                $sql = "INSERT INTO `Addresses`(`address`, `email`, `is_default`) 
+                VALUES (?,?,?)";
+                $params = array($data['address'], $data['email'], true);
+                $db->execute($sql, $params);
+
+                return "done";
+            } catch (PDOException $e) {
+                throw $e;
+            }
+        }
+
         function InsertCustomer($data){
             try {
                 $db = new DB();
@@ -123,29 +154,17 @@ include_once "./mvc/models/CustomerModel/CustomerObj.php";
                 $params = array($data['email'], $data['password'], $data['full_name'], $data['phone']);
                 $db->execute($sql, $params);
                 $this->InsertCustomerCart($db, $data);
+                $this->InsertAddress($db, $data);
                 $db->conn->commit();
                 return "done";
             } catch (PDOException $e) {
                 $db->conn->rollBack();
-                return "Lỗi khi thêm thông tin khách hàng";
+                //return "Lỗi khi thêm thông tin khách hàng";
+                return $e->getMessage();
                 //echo  $sql . "<br>" . $e->getMessage();
             }
         }
 
-        function DeleteCustomer($data){
-            try {
-                $db = new DB();
-                $sql = "DELETE FROM `Customers` WHERE `email` = ?;";
-                $params = array($data['email']);
-                $db->execute($sql, $params);
-
-                echo "done";
-            } catch (PDOException $e) {
-
-                echo "Lỗi khi xóa khách hàng";
-                //echo  $sql . "<br>" . $e->getMessage();
-            }
-        }
 
         function DeleteToken($data){
             try {
@@ -231,15 +250,15 @@ include_once "./mvc/models/CustomerModel/CustomerObj.php";
         }
 
         
-        function ResetPassword($data){
+        function UpdatePassword($data){
             try {
                 $db = new DB();
                 $sql = "UPDATE Customers AS C SET C.password= ? WHERE C.email = ?";
-                $params = array($data['password'], $data['email']);
+                $params = array($data['newPassword'], $data['email']);
                 $db->execute($sql, $params);
                 return "done";
             } catch (PDOException $e) {
-                return "Lỗi khi reset password";
+                return "Lỗi khi update password";
                 //echo  $sql . "<br>" . $e->getMessage();
             }
         }

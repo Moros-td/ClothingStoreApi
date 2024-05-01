@@ -42,7 +42,7 @@ use \Firebase\JWT\Key;
                     return $decoded;
                 } catch (Exception $e) {
                     // Nếu có lỗi trong quá trình giải mã token, trả về lỗi
-                    return "Error when authentication";
+                    return "Error when authentication" . $e;
                 }
             }
             else{

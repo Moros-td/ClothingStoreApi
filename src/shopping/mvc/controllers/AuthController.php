@@ -10,7 +10,6 @@ use \Firebase\JWT\Key;
         
         function Login(){
 
-            // lấy và validate data
             $data = [];
             $email = '';
             $password = '';
@@ -52,7 +51,7 @@ use \Firebase\JWT\Key;
                         if($checkUserHaveToken){
                             if($model->DeleteToken($data["email"]) != "done"){
                                 http_response_code(401);
-                                $response["err"] = "Something wrong";
+                                $response["err"] = "Có gì đó không ổn, vui lòng thử lại";
                                 $json_response = json_encode($response);
         
                                 // Trả về dữ liệu JSON
@@ -66,12 +65,12 @@ use \Firebase\JWT\Key;
                             $response["token"] = $jwt;
                         }
                         else{
-                            $response["err"] = "Something wrong";
+                            $response["err"] = "Có gì đó không ổn, vui lòng thử lại";
                         }
                     }
             }
             else{
-                $response["err"] = "Wrong email or password";
+                $response["err"] = "Sai tên đăng nhập hoặc mật khẩu";
                 http_response_code(401);
             }
             $json_response = json_encode($response);
@@ -86,7 +85,8 @@ use \Firebase\JWT\Key;
                     "email" => $_POST['email'],
                     "password" => $_POST['password'],
                     "retype_password" => $_POST['retype_password'],
-                    "phone" => $_POST['phone']
+                    "phone" => $_POST['phone'],
+                    "address" => $_POST['address']
                 );
 
                 $account_data = array_map('trim', $account_data);
@@ -120,15 +120,6 @@ use \Firebase\JWT\Key;
                     // nếu gửi thành công
                     if($res == 'sent'){
 
-                    // tạo session về thông tin khách hàng cũng như mã xác nhận
-                        // $_SESSION['account_data'] =  $account_data;
-                        // $token = bin2hex(random_bytes(20));
-                        // $_SESSION['token'] = $token;
-                        // $_SESSION['create_time'] = time();
-                        // $_SESSION['count'] = 0;
-                        // $_SESSION['verify_code'] = $verify_code;
-                        // echo "token:" . $token;
-
                         $key = getenv('key_api');
             
                     $payload = [
@@ -142,40 +133,17 @@ use \Firebase\JWT\Key;
                         'password' => $account_data['password'],
                         'phone' =>$account_data['phone'],
                         'verify_code' => $verify_code,
+                        'address' =>$account_data['address'],
                         'count' => 0
                     ];
     
                     $jwt = JWT::encode($payload, $key, 'HS256');
-                    // $data["token"] = $jwt;
-                    // $data["email"] = $data['email'];
-                    // $model = $this->model("Token");
-
-                    // $checkUserHaveToken = $model->checkUserHaveToken($data["email"]);
-                    // if(is_bool($checkUserHaveToken)){
-                        // if($checkUserHaveToken){
-                            // if($model->DeleteToken($data["email"]) != "done"){
-                            //     http_response_code(401);
-                            //     $response["err"] = "Something wrong";
-                            //     $json_response = json_encode($response);
-        
-                            //     // Trả về dữ liệu JSON
-                            //     echo $json_response;
-                            //     return;
-                            // }
-                        // }
-                        
-                        // $result = $model->InsertToken($data);
-                        // if($result == "done"){
+                   
                             $response["token"] = $jwt;
                             $json_response = json_encode($response);
         
                             // Trả về dữ liệu JSON
                             echo $json_response;
-                        // }
-                        // else{
-                        //     $response["err"] = "Something wrong";
-                        // }
-                    // }
                     }
                     else{
                         $response["err"] = "Lỗi khi gửi mã xác nhận, có thể do lỗi hệ thống hoặc email không đúng. Hãy kiểm tra và submit lại!";
@@ -259,8 +227,6 @@ use \Firebase\JWT\Key;
                     // Trả về dữ liệu JSON
                     echo $json_response;
                 }
-
-
             }
         }
 
@@ -274,7 +240,7 @@ use \Firebase\JWT\Key;
                 echo $json_response;
             }
             else{
-                $response["err"] = "Something wrong";
+                $response["err"] = "Có gì đó không ổn, vui lòng thử lại. " + $res;
             }
 		}
 
@@ -294,7 +260,7 @@ use \Firebase\JWT\Key;
                     $decoded = JWT::decode($data['token'], new Key($key, 'HS256'));
                         
                     if(time() > $decoded->exp){
-                        $response['err'] = "Token expired";
+                        $response['err'] = "Token hết hạn";
                         $json_response = json_encode($response);
                         echo $json_response;
                     }
@@ -312,7 +278,8 @@ use \Firebase\JWT\Key;
                                     "email" => $decoded->email,
                                     "password" => $decoded->password,
                                     "phone" =>  $decoded->phone,
-                                    "cart_code" => $cart_code
+                                    "cart_code" => $cart_code,
+                                    "address" => $decoded->address
                                 );
 
                                 $model = $this->model("Customer");
@@ -342,7 +309,7 @@ use \Firebase\JWT\Key;
                 
                                 $jwt = JWT::encode($payload, $key, 'HS256');
 
-                                $response['err'] = "Wrong verify code";
+                                $response['err'] = "Sai mã xác nhận";
                                 $response['token'] = $jwt;
 
                                 $json_response = json_encode($response);
@@ -350,96 +317,17 @@ use \Firebase\JWT\Key;
                             }
                         }
                         else{
-                            $response['err'] = "Incorrectly more than 3 times";
+                            $response['err'] = "Đã nhập sai quá 3 lần";
                             $json_response = json_encode($response);
                             echo $json_response;
                         }
                         }             
                 } catch (Exception $e) {
                     // Nếu có lỗi trong quá trình giải mã token, trả về lỗi
-                    $response['err'] = "Error when decode token";
+                    $response['err'] = "Lỗi khi giải mã token";
                     $json_response = json_encode($response);
                     echo $json_response;
                 }
-            }
-		}
-
-        public function ResetPassword($params){
-
-            $tmp = [];
-            foreach($this->categories as $key => $value){
-                $tmp[$value->getParent_category_name()][$key] =  $value->getName();
-            }
-            
-            $data['categories'] = $tmp;
-            if(!empty($params)){
-
-                $data_token['token'] = $params[0];
-                $model = $this->model("Customer");
-                $arrVerify = $model->FindCustomerVerify($data_token);
-
-                if(empty($arrVerify)){
-                    header("Location: /Auth");
-                }
-                else{
-                    $dateTime = new DateTime($arrVerify[0]->getUpdate_time());
-                    $update_time = $dateTime->getTimestamp();
-                    if(time() - $update_time  > 300 || $arrVerify[0]->getUsed() == 1){
-                        if($arrVerify[0]->getUsed() == 0){
-                            $data_user = [
-                                'email' => $arrVerify[0]->getEmail(),
-                                'used' => 1
-                            ];
-                            $err = $model->UpdateVerifyTokenStatus($data_user);
-                        }
-                        $page = $this->view("404", $data);
-                    }
-                    else{
-                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                            if(empty($_POST['password']) || empty($_POST['retype_password'])){
-                                echo "Vui lòng nhập đủ thông tin";
-                            }
-                            else{
-                                    $data_pass['password'] = $_POST['password'];
-                                    $data_pass['retype_password'] = $_POST['retype_password'];
-                                    $err = $this->checkStrongPassword($data_pass);
-                                    if($err != "validated"){
-                                        return $err;
-                                    }
-                                    else{
-                                        $password = hash('sha256', $_POST['password']);
-                                        $data_user = [
-                                            'email' => $arrVerify[0]->getEmail(),
-                                            'password' => $password,
-                                            'used' => 1
-                                        ];
-    
-                                        $model = $this->model("Customer");
-                                        $err = $model->ResetPassword($data_user);
-                                        if($err != "done"){
-                                            echo $err;
-                                        }
-                                        else{
-                                            $err = $model->UpdateVerifyTokenStatus($data_user);
-                                            if($err != "done"){
-                                                echo $err;
-                                            }
-                                            else{
-                                                echo  "done";
-                                            }
-                                        }
-                                    }
-                            }
-                        }
-                        else{
-                            $data['token'] = $params[0];
-                            $page = $this->view("changePassword", $data);
-                        }
-                    }   
-                }
-            }              
-            else{
-                header("Location: /Auth");
             }
 		}
     }

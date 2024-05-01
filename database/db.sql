@@ -238,6 +238,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Payment TO 'manager'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.OrdersHistory TO 'manager'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.OrdersHistoryItems TO 'manager'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Tokens TO 'manager'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Addresses TO 'manager'@'%';
 GRANT SELECT ON ptit_shop.AdminAccounts TO 'manager'@'%';
 
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetProducts TO 'manager'@'%';
