@@ -30,4 +30,43 @@ class Address extends DB
             return  $sql . "<br>" . $e->getMessage();
         }
     }
+
+    function DeleteAddress($data)
+    {
+        try {
+            $db = new DB();
+            $sql = "DELETE FROM Addresses WHERE email = ? AND address_id = ?";
+            $params = array($data['email'], $data['address_id']);
+            $sth = $db->execute($sql, $params);
+            return "done";
+        } catch (PDOException $e) {
+            return  $sql . "<br>" . $e->getMessage();
+        }
+    }
+
+    function AddAddress($data)
+    {
+        try {
+            $db = new DB();
+            $sql = "INSERT INTO `Addresses`(`address`, `email`) VALUES (?,?)";
+            $params = array($data['address'], $data['email']);
+            $sth = $db->execute($sql, $params);
+            return "done";
+        } catch (PDOException $e) {
+            return  $sql . "<br>" . $e->getMessage();
+        }
+    }
+
+    function UpdateAddress($data)
+    {
+        try {
+            $db = new DB();
+            $sql = "UPDATE Addresses SET `address` = ? WHERE email = ? AND address_id = ?";
+            $params = array($data['address'], $data['email'], $data['addressId']);
+            $sth = $db->execute($sql, $params);
+            return "done";
+        } catch (PDOException $e) {
+            return  $sql . "<br>" . $e->getMessage();
+        }
+    }
 }
