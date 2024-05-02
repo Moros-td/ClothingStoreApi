@@ -42,4 +42,44 @@ class OrderController extends Controller
             }
         }
     }
+
+    function getAllOrders(){
+        $data = [];
+
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $accountInfo = array(
+                "email" => $_POST['email']
+            );
+        $model = $this->model("Order");
+        $data = $model->getAllOrders($accountInfo['email']);
+        $data2 = $model->LoadOrderHistory($accountInfo['email']);
+        $data3 = array_merge($data, $data2);
+        //var_dump($data);
+        $json_response = json_encode($data3, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        echo $json_response;
+        }
+    }
+
+    function cancelOrder(){
+        $data = [];
+
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $request = array(
+                "orderCode" => $_POST['orderCode']
+            );
+        $model = $this->model("Order");
+        $data = $model->CancelOrder($request);
+
+        if($data == "done"){
+            $response["message"] = "done";
+        }
+        else{
+            $response["err"] = $data;
+        }
+
+        //var_dump($data);
+        $json_response = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        echo $json_response;
+        }
+    }
 }
