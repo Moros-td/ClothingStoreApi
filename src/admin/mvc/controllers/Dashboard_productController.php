@@ -200,7 +200,7 @@ class Dashboard_productController extends Controller
                 return;
             }
             $this->access = true;
-            $changeImage= $_POST['ChangeImage'];
+            $changeImage = $_POST['ChangeImage'];
             $size_quantities = array(
                 "S" => $_POST['S'],
                 "M" => $_POST['M'],
@@ -232,16 +232,16 @@ class Dashboard_productController extends Controller
                 if ($res === "None") {
                     $model = $this->model("Product");
                     $old_images = $model->LoadProductImages($product_data['product_code']);
-                
+
                     if (is_array($old_images)) {
-                        
+
                         if ($old_images != null) {
-                            
-                            if($changeImage=="true"){
+
+                            if ($changeImage == "true") {
 
                                 $uploadedFile = $_FILES["file"];
                                 $fileNames = $this->UpLoadFiles($uploadedFile);
-                            }else{
+                            } else {
                                 $fileNames = $old_images;
                             }
                             if (!is_array($fileNames)) {
@@ -249,8 +249,8 @@ class Dashboard_productController extends Controller
                             } else {
                                 // thêm ảnh vào data
                                 $product_data["product_images"] = $fileNames;
-                                
-                                $err = $model->EditProduct($product_data,$changeImage);
+
+                                $err = $model->EditProduct($product_data, $changeImage);
                                 if ($err != "done" && $changeImage == "true") {
                                     foreach ($fileNames as $each) {
                                         unlink($each);
@@ -263,10 +263,10 @@ class Dashboard_productController extends Controller
                                 }
                                 $response['message'] = $err;
                                 $response['success'] = true;
-                                
+
                             }
                         } else {
-                            $response['message']= "Ma san pham khong ton tai";
+                            $response['message'] = "Ma san pham khong ton tai";
                         }
                     } else {
                         $response['message'] = $old_images;
@@ -277,6 +277,56 @@ class Dashboard_productController extends Controller
 
             } else {
                 $response['success'] = $check;
+            }
+        }
+        echo json_encode($response);
+        return;
+    }
+    function deleteProduct()
+    {
+        $response = [
+            'success' => false,
+            'message' => ''
+        ];
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+            $product_data = array(
+                "product_code" => $_POST['product_code'],
+            );
+
+            $product_data = array_map('trim', $product_data);
+            
+            //$check = $this->validateSpecialCharacter($product_data);
+            $check = false;
+            if ($check == false) {
+                $model = $this->model("Order");
+                //$res = $model->CheckOrderNotDeliveredYet($product_data);
+                //$res === "None"
+                $model = $this->model("Product");
+                // lấy đường dẫn hình và xóa nó đi
+                $images = $model->LoadProductImages($product_data['product_code']);
+                if (is_array($images)) {
+                    if ($images != null) {
+
+                        $err = $model->DeleteProduct($product_data);
+
+                        if ($err == "done") {
+                            foreach ($images as $each) {
+                                unlink($each);
+                                $response['success'] = true;
+                            }
+                        }
+                        $response['message'] = $err;
+                    } else {
+                        // var_dump($images);
+                        $response['message']  = "Mã sản phẩm " . $product_data["product_code"] . " không tồn tại";
+                    }
+                } else {
+                    $response['message']  = $images;
+                }
+
+            } else {
+                $response['message'] ="Lỗi kí tự dặc biệt";
             }
         }
         echo json_encode($response);

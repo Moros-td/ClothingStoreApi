@@ -277,6 +277,41 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
                 }
             }
         }
+        function DeleteProduct($data){
+            try {
+                $db = new DB();
+                $db->conn->beginTransaction();
+    
+                // tìm đơn hàng còn chứa sản phẩm mà đã thanh toán
+                //$orders_code =  $this->FindOrder($db, $data['product_code']);
+    
+                // xóa các đơn hàng này
+                //foreach($orders_code as $each){
+                  //  $this->DeleteOrder($db, $each);
+                //}
+    
+                // xóa sản phẩm
+                $sql = "DELETE FROM `Products` WHERE `product_code` = ?;";
+                $params = array($data['product_code']);
+                $db->execute($sql, $params);
+    
+                $db->conn->commit();
+                return "done";
+            } catch (PDOException $e) {
+    
+                $db->conn->rollBack();
+                if ($e->getCode() == '42000') {
+                    // Xử lý khi có lỗi SQLSTATE 42000
+                    return "Bạn không có quyền làm thao tác này";
+                } else {
+                    if($e->getCode() == '22001'){
+                        return "Dữ liệu quá dài";
+                    }
+                    //echo "Lỗi: " . $e->getMessage();
+                    return "Lỗi khi xóa sản phẩm";
+                }
+            }
+        }
     }
     
     
