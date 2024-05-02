@@ -118,7 +118,12 @@ class CartItem extends DB
             $quantity = $result[0]['quantity'];
             $total_price = $result[0]['total_price'];
 
+            // Giảm số lượng trong bảng ProductSizes
+            $sql_update_product_sizes = "UPDATE ProductSizes SET quantity = quantity - ? WHERE product_code = ? AND size = ?";
+            $params_update_product_sizes = array($data['quantity'], $data['product_code'], $data['size']);
+            $db->execute($sql_update_product_sizes, $params_update_product_sizes);
             if ($num > 0) {
+
                 $data['quantity'] += $quantity; // Cộng thêm số lượng mới vào số lượng hiện có
                 $data['total_price'] += $total_price;
                 $this->ChangeQuantityAndPrice($data);
@@ -145,10 +150,17 @@ class CartItem extends DB
             $quantity = $result[0]['quantity'];
             $total_price = $result[0]['total_price'];
 
+            
+            // Tăng số lượng trong bảng ProductSizes
+            $sql_update_product_sizes = "UPDATE ProductSizes SET quantity = quantity + ? WHERE product_code = ? AND size = ?";
+            $params_update_product_sizes = array(1, $data['product_code'], $data['size']);
+            $db->execute($sql_update_product_sizes, $params_update_product_sizes);
+
             //Giảm số lượng            
             $data['quantity'] = $quantity - $data['quantity'];
             $data['total_price'] = $total_price - $data['total_price'];
             $this->ChangeQuantityAndPrice($data);
+
             return "done";
         } catch (PDOException $e) {
             return "lỗi";
@@ -171,34 +183,49 @@ class CartItem extends DB
     }
 
     function DeleteProductInCart($data)
+{
+    try {
+        $db = new DB();
+        
+        // Lấy số lượng sản phẩm sẽ được xóa từ bảng CartItems
+        $quantity_to_delete_sql = "SELECT quantity FROM CartItems WHERE cart_code = ? AND product_code = ? AND size = ?";
+        $quantity_to_delete_params = array($data['cart_code'], $data['product_code'], $data['size']);
+        $sth = $db->select($quantity_to_delete_sql, $quantity_to_delete_params);
+        $result = $sth->fetch();
+        $quantity_to_delete = $result['quantity'];
+
+        // Xóa sản phẩm từ giỏ hàng
+        $sql_delete = "DELETE FROM CartItems WHERE cart_code = ? AND product_code = ? AND size = ?";
+        $params_delete = array($data['cart_code'], $data['product_code'], $data['size']);
+        $db->execute($sql_delete, $params_delete);
+
+        // Tăng số lượng sản phẩm đã xóa vào bảng ProductSizes
+        $sql_update_product_sizes = "UPDATE ProductSizes SET quantity = quantity + ? WHERE product_code = ? AND size = ?";
+        $params_update_product_sizes = array($quantity_to_delete, $data['product_code'], $data['size']);
+        $db->execute($sql_update_product_sizes, $params_update_product_sizes);
+
+        return "done";
+    } catch (PDOException $e) {
+        return "Lỗi khi xóa sản phẩm";
+        //return  $sql . "<br>" . $e->getMessage();
+    }
+}
+
+    function CheckTotalProduct($cart_code)
     {
         try {
             $db = new DB();
-            $sql = "DELETE FROM CartItems AS CI WHERE CI.cart_code = ? AND CI.product_code = ? AND CI.size = ?";
-            $params = array($data['cart_code'], $data['product_code'], $data['size']);
-            $db->execute($sql, $params);
-            return "done";
-        } catch (PDOException $e) {
-            return "Lỗi khi xóa sản phẩm";
-            //return  $sql . "<br>" . $e->getMessage();
-        }
-    }
-    function CheckTotalProduct($cart_code){
-        try{
-            $db = new DB();
-            $sql = "SELECT SUM(quantity) AS total_quantity FROM CartItems WHERE cart_code =?";     
+            $sql = "SELECT SUM(quantity) AS total_quantity FROM CartItems WHERE cart_code =?";
             $params = array($cart_code);
             $sth = $db->select($sql, $params);
             $result = $sth->fetchAll();
             $total_product = $result[0]['total_quantity'];
-            
+            if ($total_product == null)
+                $total_product = 0;
             return $total_product;
-           
-        }
-        catch(PDOException $e){
+        } catch (PDOException $e) {
             return null;
         }
-
     }
     function DeleteAll($data)
     {
