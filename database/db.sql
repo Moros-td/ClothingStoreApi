@@ -149,7 +149,21 @@ CREATE TABLE OrdersHistoryItems (
   quantity INT,
   size ENUM('S', 'M', 'L', 'XL', 'XXL'),
   total_price DECIMAL(10,3),
+  commentState BOOLEAN DEFAULT FALSE,
   FOREIGN KEY (`order_code`) REFERENCES `OrdersHistory`(`order_code`)
+); 
+
+DROP TABLE IF EXISTS `Comments`;
+
+CREATE TABLE Comments (
+  comment_id INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(100),
+  product_code VARCHAR(50),
+  rating FLOAT(1),
+  comment TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`email`) REFERENCES `Customers`(`email`) ON DELETE CASCADE,
+  FOREIGN KEY (`product_code`) REFERENCES `Products`(`product_code`) ON DELETE CASCADE
 ); 
 DROP TABLE IF EXISTS `AdminAccounts`;
 
@@ -239,6 +253,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.OrdersHistory TO 'manager'@'%'
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.OrdersHistoryItems TO 'manager'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Tokens TO 'manager'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Addresses TO 'manager'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Comments TO 'manager'@'%';
 GRANT SELECT ON ptit_shop.AdminAccounts TO 'manager'@'%';
 
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetProducts TO 'manager'@'%';
@@ -260,12 +275,13 @@ GRANT SELECT, INSERT, DELETE, UPDATE ON ptit_shop.Orders TO 'customer'@'%';
 GRANT SELECT, INSERT, DELETE, UPDATE ON ptit_shop.OrderItems TO 'customer'@'%';
 GRANT SELECT, INSERT, DELETE, UPDATE ON ptit_shop.Payment TO 'customer'@'%';
 GRANT SELECT, INSERT ON ptit_shop.OrdersHistory TO 'customer'@'%';
-GRANT SELECT, INSERT ON ptit_shop.OrdersHistoryItems TO 'customer'@'%';
+GRANT SELECT, INSERT, UPDATE ON ptit_shop.OrdersHistoryItems TO 'customer'@'%';
 GRANT SELECT ON ptit_shop.Products TO 'customer'@'%';
 GRANT SELECT ON ptit_shop.ProductImages TO 'customer'@'%';
 GRANT SELECT, UPDATE ON ptit_shop.ProductSizes TO 'customer'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Tokens TO 'customer'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Addresses TO 'customer'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ptit_shop.Comments TO 'customer'@'%';
 
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetProducts TO 'customer'@'%';
 GRANT EXECUTE ON PROCEDURE ptit_shop.GetSizesProduct TO 'customer'@'%';
@@ -497,3 +513,6 @@ INSERT INTO `OrdersHistory`(`order_code`, `order_date` , `state`, `email`, `addr
 INSERT INTO `OrdersHistoryItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_1','SP1701933882',2,'S', 200);
 INSERT INTO `OrdersHistoryItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_1','SP1701934515',2,'L', 200);
 INSERT INTO `OrdersHistoryItems`(`order_code`, `product_code`, `quantity`, `size`, `total_price`) VALUES ('order_3','SP1701935516',4,'L', 800);
+
+INSERT INTO `Comments`(`email`, `product_code`, `rating`, `comment`) VALUES ('n20dcat004@student.ptithcm.edu.vn','SP1701933882',4.5,'Sản phẩm oke lắm nhe mọi người');
+INSERT INTO `Comments`(`email`, `product_code`, `rating`, `comment`) VALUES ('n20dcat004@student.ptithcm.edu.vn','SP1701934515',3.5,'Mặc không vừa');

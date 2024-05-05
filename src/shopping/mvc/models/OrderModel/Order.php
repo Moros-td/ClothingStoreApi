@@ -265,6 +265,8 @@ class Order extends DB
                 $obj = new OrderItemObj($row);
                 $product = $this->LoadProductInfo($row['product_code']);
                 $obj->setProduct($product);
+                $obj->setCommentState($row['commentState']);
+                $obj->setOrder_item_id($row['history_detail_id']);
                 $orders_items[] = $obj;
             }
 

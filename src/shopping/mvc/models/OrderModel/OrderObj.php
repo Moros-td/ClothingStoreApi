@@ -136,6 +136,7 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
         public $quantity;
         public $size;
         public $total_price;
+        public $commentState;
 
         public function __construct($row)
         {
@@ -204,6 +205,18 @@ include_once "./mvc/models/ProductModel/ProductObj.php";
         public function setProduct($product)
         {
                 $this->product = $product;
+
+                return $this;
+        }
+
+        public function getCommentState()
+        {
+                return $this->commentState;
+        }
+
+        public function setCommentState($commentState)
+        {
+                $this->commentState = $commentState;
 
                 return $this;
         }
