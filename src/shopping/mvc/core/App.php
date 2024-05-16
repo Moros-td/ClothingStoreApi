@@ -24,7 +24,7 @@
             }
 
             $validAccess = false;
-            $whileList = ['HomeController', 'ProductController', 'CategoryController', 'AuthController', 'TestController'];
+            $whileList = ['HomeController', 'ProductController', 'CategoryController', 'AuthController', 'TestController', 'CommentController'];
 
             // kiểm tra các trang được vào mà không đăng nhập
             if (in_array($this->controller, $whileList)) {
